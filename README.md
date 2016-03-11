@@ -5,9 +5,8 @@ https://confluence.lsstcorp.org/display/SIM/Catalogs+and+MAF#CatalogsandMAF-Bina
 - SNCosmo : `pip install sncosmo`
 - Install the following python packages:
 https://github.com/rbiswas4/OpSimSummary (setup.py install --user)
-- Install Cadence: git@github.com:rbiswas4/Cadence.git (setup.py install --user)
-- https://github.com/lisaleemcb/sncosmo_lc_analysis 
+- Install Cadence: https://github.com/rbiswas4/Cadence.git (setup.py install --user)
+- clone the reopository https://github.com/lisaleemcb/sncosmo_lc_analysis 
 
-# git@github.com:lisaleemcb/sncosmo_lc_analysis.git
 
 
