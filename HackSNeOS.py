@@ -1,37 +1,25 @@
-#!/usr/bin/env python
 # coding: utf-8
+from __future__ import absolute_import
 
-# In[1]:
-
-#get_ipython().magic(u'matplotlib inline')
-#get_ipython().magic(u'load_ext autoreload')
-
-import numpy as np
 import os
+from copy import deepcopy
+import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 
 import sncosmo
 
-from copy import deepcopy
 import gedankenLSST
-
 from LSSTmetrics import PerSNMetric
 from lsst.sims.photUtils import BandpassDict
+from analyzeSN import analyzelcFits as anf
+from astropy.units import Unit
 
-import analyzelcFits as anf
-
-
-# In[2]:
-
-# Run this once. It does not change
 
 lsst_bp = BandpassDict.loadTotalBandpassesFromFiles()
 
 # sncosmo Bandpasses required for fitting
 throughputsdir = os.getenv('THROUGHPUTS_DIR')
 
-from astropy.units import Unit
 bandPassList = ['u', 'g', 'r', 'i', 'z', 'y']
 banddir = os.path.join(os.getenv('THROUGHPUTS_DIR'), 'baseline')
 
@@ -78,9 +66,6 @@ def shift_loop(delta_t0, lsst_obs):
     
     return np.mean(np.array(var))
 
-
-# In[5]:
-
 def shift_loop_mcmc(delta_t0, lsst_obs):
     model = sncosmo.Model(source='salt2-extended')
     var = []
@@ -91,28 +76,19 @@ def shift_loop_mcmc(delta_t0, lsst_obs):
             data = sn.SNCosmoLC() 
             mcmc_out = sncosmo.mcmc_lc(data,model,['z', 't0', 'x0', 'x1', 'c'],bounds={'z':(0.3, 0.7)})
             t = anf.ResChar.fromSNCosmoRes(mcmc_out)
-            print i,t.salt_samples().mu.std()
+            print(i,t.salt_samples().mu.std())
             var.append(t.salt_samples().mu.std()*t.salt_samples().mu.std())
         except:
             print('I failed!')
     
     return np.mean(np.array(var))
 
-
-# In[6]:
-
-# use LSST cadence
-# choose number of lightcurves to shift
-# for each shifted lightcurve, evaluate at sampling locations (no measurement errors for now)
-# for each shifted lightcurve, calculate variance of parameters, then sum them to get expected value of variance
-# profit
-
-
-
 def cadence_loop(bumps,delta_t0):
+
     #delta_t0 = np.linspace(snLSST.SN.mintime(), snLSST.SN.maxtime(), 10)
     #print delta_t0
     #print bumps
+
     length = []
     mu_variance_per_bump = []
     for i in bumps:
@@ -146,42 +122,43 @@ def cadence_loop_mcmc(bumps,delta_t0):
     return mu_variance_per_bump, length
 
 
+if __name__ == '__main__':
 
 
-### CONTROL HERE: TIME STEP
-t0 = 49570.
-dt = 50.
-delta_t0 = np.linspace(t0-dt,t0+dt,10)
-#49540.0
-#49645.0
-
-#normalize Max-Min/ time window
-
-## Using Maximum likelihood  methods
-#bumps = np.arange(0.1, 3, 0.2)
-#mvpb, length = cadence_loop(bumps,delta_t0)
-
-
-
-
-### CONTROL HERE: NUMBER AND RANGE OF BUMPS
-bumps1 = np.arange(1.0, 2.0, 0.5)
-mvpb1, length1 = cadence_loop_mcmc(bumps1,delta_t0)
-
-np.savetxt('mu_variance_length.txt', zip(mvpb1,length1))
-
-
-
-normalize =(49645.0 - 49540.0)/(130.+ 150.)
-
-x = np.linspace(0.1, 80, 1000)
-
-plt.figure(figsize = (8,6))
-plt.plot(np.array(length1)*normalize, mvpb1, 'o')
-plt.plot(x, 1.0/x, label = '1/N_eff')
-plt.ylabel('expectation value of variance(distance modulus)')
-plt.xlabel('N_effective')
-plt.ylim(-1, 2)
-#plt.savefig('preliminary_bump01_3.pdf')
-
-
+    ### CONTROL HERE: TIME STEP
+    t0 = 49570.
+    dt = 50.
+    delta_t0 = np.linspace(t0-dt,t0+dt,10)
+    #49540.0
+    #49645.0
+    
+    #normalize Max-Min/ time window
+    
+    ## Using Maximum likelihood  methods
+    #bumps = np.arange(0.1, 3, 0.2)
+    #mvpb, length = cadence_loop(bumps,delta_t0)
+    
+    
+    
+    
+    ### CONTROL HERE: NUMBER AND RANGE OF BUMPS
+    bumps1 = np.arange(1.0, 2.0, 0.5)
+    mvpb1, length1 = cadence_loop_mcmc(bumps1,delta_t0)
+    
+    np.savetxt('mu_variance_length.txt', zip(mvpb1,length1))
+    
+    
+    
+    normalize =(49645.0 - 49540.0)/(130.+ 150.)
+    
+    x = np.linspace(0.1, 80, 1000)
+    
+    plt.figure(figsize = (8,6))
+    plt.plot(np.array(length1)*normalize, mvpb1, 'o')
+    plt.plot(x, 1.0/x, label = '1/N_eff')
+    plt.ylabel('expectation value of variance(distance modulus)')
+    plt.xlabel('N_effective')
+    plt.ylim(-1, 2)
+    plt.savefig('preliminary_bump_s_1_3.pdf')
+    
+    
