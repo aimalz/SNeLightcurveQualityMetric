@@ -109,7 +109,8 @@ def cadence_loop_mcmc(bumps,delta_t0):
     length = []
     mu_variance_per_bump = []
     for i in bumps:
-        print i
+        print 'In i loop, ', i
+        exit()
         lsstCadence['bF'] = i
         
         lsst_obs = gedankenLSST.GSN_Obs(mjd_center=49570., 
@@ -129,6 +130,7 @@ if __name__ == '__main__':
     t0 = 49570.
     dt = 50.
     delta_t0 = np.linspace(t0-dt,t0+dt,10)
+    print(delta_t0)
     #49540.0
     #49645.0
     
