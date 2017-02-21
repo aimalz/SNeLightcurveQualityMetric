@@ -6,7 +6,9 @@ https://confluence.lsstcorp.org/display/SIM/Catalogs+and+MAF#CatalogsandMAF-Bina
 - Install the following python packages:
 https://github.com/rbiswas4/OpSimSummary (setup.py install --user)
 - Install Cadence: https://github.com/rbiswas4/Cadence.git (setup.py install --user)
-- clone the reopository https://github.com/lisaleemcb/sncosmo_lc_analysis 
+- clone the reopository https://github.com/lisaleemcb/sncosmo_lc_analysis  (setup.py install --user)
+
+python HackSNeOS.py
 
 
 
