@@ -1,0 +1,121 @@
+%\documentclass[iop]{emulateapj}
+%\documentclass[12pt, preprint]{emulateapj}
+\documentclass[12pt, onecolumn]{emulateapj}
+
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{multirow}
+%\usepackage{bibtex}
+%\bibliographystyle{unsrtnat}
+
+\newcommand{\myemail}{aimalz@nyu.edu}
+\newcommand{\textul}{\underline}
+\newcommand{\RN}[1]{%
+	\textup{\uppercase\expandafter{\romannumeral#1}}%
+}
+
+\newcommand\MyBox[2]{
+  \fbox{\lower0.75cm
+    \vbox to 3.5cm{\vfil
+      \hbox to 3.5cm{\hfil\parbox{3.2cm}{#1\\#2}\hfil}
+      \vfil}%
+  }%
+}
+
+%\slugcomment{}
+
+\shorttitle{Supernova Cosmology Cadence Metric}
+\shortauthors{Malz and Peters}
+
+\begin{document}
+
+\title{The Confusion Matrix as a Metric for Cadence Optimization for Supernova Science}
+
+\author{Alex Malz\altaffilmark{1}}
+\author{Tina Peters\altaffilmark{2}}
+\altaffiltext{1}{Center for Cosmology and Particle Physics, Department of Physics, New York University, 726 Broadway, 9th Floor, New York, NY 10003, USA}
+ \altaffiltext{2}{Dunlap Institute for Astronomy \& Astrophysics, University of Toronto, 50 Saint George Street, Toronto, ON M4M 2K9, CANADA}
+\email{aimalz@nyu.edu}
+
+\slugcomment{Note: We'll turn this into a DESC research note soon!}
+\slugcomment{Note: We'll add references to different classifiers soon!}
+
+\section{The confusion matrix}
+
+We propose using the confusion matrix associated with a classifier of photometric lightcurves as the basis for a metric for comparing the results of different survey strategies.  In this formalism, we assume that we are given a catalog of supernova lightcurves.  This means that the data processing pipeline has already discovered all transients in the survey and correctly identified all supernovae in that sample.
+
+The confusion matrix is a natural product of validating a classifier.  Here we assume that each supernova $n$ in the catalog of $N$ supernovae has a true class $T_{n}$, and the output of the classifier is an estimated type $\hat{T}_{n}$.  We seek to populate the space of $\{p(\{T_{n}=m\}_{N}|\{\hat{T}_{n}=m'\}_{N})\}_{M^{2}}$ for all combinations of types $(m, m')$, where there are $M$ possible types.
+
+We explore the construction of a confusion matrix for a variety of classifier types in Secs. \ref{sec:classifier}, \ref{sec:regressor}, and \ref{sec:other}.
+
+\subsection{Classifier}
+\label{sec:classifier}
+
+Let us consider a true classifier with $M=3$ possible classes $m$: \RN{1}a, \RN{1}bc, and \RN{2}.  Running this classifier on the catalog of $N$ supernovae produces $M$ observed rates $p(m|\{\hat{T}_{n}\}_{N})=\frac{\hat{N}_{m}}{N}$, where $\hat{N}_{m}$ denotes the number of supernovae with $\hat{T}_{n}=m$.  These rates are distinct from the true rates $p(m|\{T_{n}\}_{N})=\frac{N_{m}}{N}$, where $N_{m}$ denotes the number of supernovae with $T_{n}=m$.  We can further define global probabilities $p(\{T_{n}=m\}_{N}|\{\hat{T}_{n}=m'\}_{N})=\frac{N_{m}}{\hat{N}_{m'}}$ that define the confusion matrix.  A schematic of the confusion matrix for a general classifier is given in Fig. \ref{fig:classifier}.
+
+\vspace{1in}
+\begin{figure}
+\renewcommand\arraystretch{1.5}
+\setlength\tabcolsep{0pt}
+\begin{tabular}{l @{\hspace{0.7em}}r @{\hspace{0.7em}}c @{\hspace{0.4em}}c @{\hspace{0.4em}}c @{\hspace{0.7em}}l}
+    \multirow{17}{*}{\rotatebox{90}{\parbox{3.0cm}{\bfseries\centering Simulation Input}}} & & \multicolumn{3}{c}{\bfseries Classification Output} &  \\
+	 & & $\hat{T} = \RN{1}a$ & $\hat{T} = \RN{1}bc$ & $\hat{T} = \RN{2}$ & \bfseries total \\
+	& \em{T = \RN{1}a} & \MyBox{$p(T = \RN{1}a \ | \ \hat{T} = \RN{1}a)$}{ \ } & \MyBox{$p(T = \RN{1}a \ | \ \hat{T} = \RN{1}bc)$}{ \ } & \MyBox{$p(T = \RN{1}a \ | \ \hat{T} = \RN{2})$}{ \ } & Simulated \RN{1}a Rate \\[2.4em]
+	& \em{T = \RN{1}bc} & \MyBox{$p(T = \RN{1}bc \ | \ \hat{T} = \RN{1}a)$}{ \ } & \MyBox{$p(T = \RN{1}bc \ | \ \hat{T} = \RN{1}bc)$}{ \ } & \MyBox{$p(T = \RN{1}bc \ | \ \hat{T} = \RN{2})$}{ \ } & Simulated Ibc Rate\\[2.4em]
+	& \em{T = \RN{2}} & \MyBox{$p(T = \RN{2} \ | \ \hat{T} = \RN{1}a)$}{ \ } & \MyBox{$p(T = \RN{2} \ | \ \hat{T} = \RN{1}bc)$}{ \ } & \MyBox{$p(T = \RN{2} \ | \ \hat{T} = \RN{2})$}{ \ } & Simulated II Rate \\
+    & {\bfseries total} & Classified \RN{1}a rate & Classified Ibc rate & Classified II rate & \\
+\end{tabular}
+%\caption{}
+\label{fig:classifier}
+\end{figure}
+
+\subsection{Regressor}
+\label{sec:regressor}
+
+One may also perform SN classification by way of regression.  If we want to include every SN Ia from the catalog in our cosmological inference and exclude every non SN Ia from our cosmological inference, we must have $M=2$ classes $m$: Ia and not Ia, denoted !Ia.  A "pseudoclassifier" could perform a fit of each observed lightcurve to a set of $Q$ SN Ia reference lightcurves $q$ (which may be a training set of previous observations or a template library) and execute a cut in the best goodness of fit measure, defined as $\min_{q}\chi_{q}^{2}<t$, based on a chosen threshold $t$; each SN $n$ is assigned a class according to $\hat{T}_{n}=$ \RN{1}a $\iff\min_{q}\chi_{q}^{2}<t$ and $\hat{T}_{n}=$ !\RN{1}a$\iff\min_{q}\chi_{q}^{2}>t$.  The same reasoning from Sec \ref{sec:classifier} applies, yielding the same confusion matrix comprised of $p(\{T_{n}=m\}_{N}|\{\hat{T}_{n}=m'\}_{N})=\frac{N_{m}}{\hat{N}_{m'}}$ for each pair $(m, m')$.  A schematic of the confusion matrix for a regression-based classifier is given in Fig. \ref{fig:regressor}
+
+\vspace{1in}
+\begin{figure}
+\renewcommand\arraystretch{1.5}
+\setlength\tabcolsep{0pt}
+\begin{tabular}{l @{\hspace{0.7em}}r @{\hspace{0.7em}}c @{\hspace{0.4em}}c @{\hspace{0.7em}}l}
+	\multirow{12}{*}{\rotatebox{90}{\parbox{3.0cm}{\bfseries\centering Simulation Input}}}
+	& & \multicolumn{2}{c}{\bfseries Classification Output} & \\
+	& & $\hat{T} = \RN{1}a$ & $\hat{T} = \ !\RN{1}a$ & \bfseries total \\
+	& $T = \RN{1}a$ & \MyBox{\ }{$p(T= \RN{1}a \ | \ \hat{T} = \RN{1}a)$} & \MyBox{\ }{$p(T= \RN{1}a \ | \ \hat{T} = \ !\RN{1}a)$} & Simulated \RN{1}a Rate \\[2.4em]
+	& $T = \ !\RN{1}a$ & \MyBox{\ }{$p(T= \ !\RN{1}a \ | \ \hat{T} = \RN{1}a)$} & \MyBox{\ }{$p(T= \ !\RN{1}a \ | \ \hat{T} = \ !\RN{1}a)$} & Simulated !\RN{1}a Rate \\ 
+	& total & Classified \RN{1}a rate & Classified !\RN{1}a rate & \\
+\end{tabular}
+%\caption{}
+\label{fig:regressor}
+\end{figure}
+
+\subsection{Other}
+\label{sec:other}
+
+Thus far, we have only concerned ourselves with deterministic classifiers that assign each supernova a type without uncertainty.  Other classification procedures may assign a posterior probability of type $p(m\ |\ \textul{d})$ given its photometric data $\textul{d}$ to each supernova, in which case there is no concept of a point estimator $\hat{T}_{n}$ of supernova type so the confusion matrix cannot be directly computed.  As an alternative, one may sample the catalog of posteriors $\{p(m\ |\ \textul{d}_{n})\}_{N}$ to create instantiations of the estimated catalog.  The confusion matrix may be computed for each instantiation, and these sampled confusion matrices may be combined into a summary statistic, perhaps a mean or median in each cell; the choice should be made after viewing the distributions of sampled cell values.
+
+\section{A metric}
+
+The confusion matrix may be used as the basis for a metric of classification under different proposed observing strategies.  In constructing the Hubble diagram, contamination is of greater impact than completeness, so an appropriate quantification of the performance of a classifier could be $p(T=!\RN{1}a\ |\ \hat{T}=\RN{1}a)$, where a superior classification minimizes this quantity.
+
+This proposal concerns only the classification of supernovae, but there are other aspects of the pipeline toward supernova cosmology that will be affected by cadence, namely the discovery of supernovae (and their distinction from other transient populations) and the quality of lightcurve fitting.  It is expected that survey strategies with a favorable value for this metric will also have favorable values for metrics of discovery and quality.
+
+\subsection{Practicalities}
+
+There are some conditions that must be specified for proper use of this metric, enumerated below.
+
+\begin{enumerate}
+\item The simulated data for each survey strategy must be generated such that only the cadence is varied between datasets, so that we may be certain that any differences in the metric are solely due to the cadence.  Comparisons of different sky areas, depths, and band arrangements may be considered separately.
+\item A single discovery algorithm must be applied to all datasets being compared.  Though this will result in different numbers of supernovae (total and of each type) in each scheme's catalog, the probabilities in the confusion matrix are normalized.  So long as both the true and estimated numbers of supernovae of each type are sufficiently large, the metric will be robust against the effects of small number statistics.
+\item The classification procedure, whether of the true classifier or the regressor varieties, must be kept constant between datasets.  We suggest using one that is widely accepted, even if it may not be considered the best in any sense, so that the broader community is unlikely to single out this choice as a weakness.
+\end{enumerate}
+
+\acknowledgments{We thank Rahul Biswas for helpful feedback.}
+
+%\appendix
+
+%\bibliography{references}
+
+\end{document}
